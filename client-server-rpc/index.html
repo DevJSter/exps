@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JS RPC/RMI Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+      text-align: center;
+      padding-top: 50px;
+    }
+    input, select, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+  <script>
+    async function callRPC() {
+      const a = parseFloat(document.getElementById("a").value);
+      const b = parseFloat(document.getElementById("b").value);
+      const method = document.getElementById("method").value;
+
+      const payload = { method, params: [a, b] };
+
+      const response = await fetch("/rpc", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      console.log("📦 Response from server:", result);
+      document.getElementById("result").innerText = "Result: " + (result.result ?? result.error);
+    }
+  </script>
+</head>
+<body>
+  <h1>JS RPC Calculator</h1>
+  <input id="a" type="number" placeholder="Enter A" required />
+  <input id="b" type="number" placeholder="Enter B" required />
+  <select id="method">
+    <option value="add">Add</option>
+    <option value="subtract">Subtract</option>
+  </select>
+  <button onclick="callRPC()">Send RPC</button>
+  <h2 id="result">Result: </h2>
+</body>
+</html>
