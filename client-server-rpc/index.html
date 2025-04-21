@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>JS RPC/RMI Demo</title>
+  <title>JS RPC Calculator</title>
   <style>
     body {
       font-family: sans-serif;
-      background-color: #f9f9f9;
+      background-color: #f0f0f0;
       text-align: center;
       padding-top: 50px;
     }
@@ -29,8 +29,9 @@
       const a = parseFloat(document.getElementById("a").value);
       const b = parseFloat(document.getElementById("b").value);
       const method = document.getElementById("method").value;
+      const message = document.getElementById("message").value;
 
-      const payload = { method, params: [a, b] };
+      const payload = { method, params: [a, b], message };
 
       const response = await fetch("/rpc", {
         method: "POST",
@@ -39,20 +40,26 @@
       });
 
       const result = await response.json();
-      console.log("📦 Response from server:", result);
+      console.log("📦 Server responded:", result);
       document.getElementById("result").innerText = "Result: " + (result.result ?? result.error);
+      document.getElementById("echo").innerText = result.messageEcho ? "Message: " + result.messageEcho : "";
     }
   </script>
 </head>
 <body>
-  <h1>JS RPC Calculator</h1>
-  <input id="a" type="number" placeholder="Enter A" required />
-  <input id="b" type="number" placeholder="Enter B" required />
+  <h1>JS RPC Calculator + Message</h1>
+  <input id="a" type="number" placeholder="Enter A" />
+  <input id="b" type="number" placeholder="Enter B" />
   <select id="method">
     <option value="add">Add</option>
     <option value="subtract">Subtract</option>
-  </select>
+    <option value="multiply">Multiply</option>
+    <option value="divide">Divide</option>
+  </select><br><br>
+  <input id="message" type="text" placeholder="Optional message to server" />
   <button onclick="callRPC()">Send RPC</button>
-  <h2 id="result">Result: </h2>
+
+  <h2 id="result">Result:</h2>
+  <h3 id="echo">Message:</h3>
 </body>
 </html>

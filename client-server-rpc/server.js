@@ -5,6 +5,8 @@ const path = require("path");
 const METHODS = {
   add: (a, b) => a + b,
   subtract: (a, b) => a - b,
+  multiply: (a, b) => a * b,
+  divide: (a, b) => (b === 0 ? "Cannot divide by zero" : a / b),
 };
 
 const server = http.createServer((req, res) => {
@@ -21,17 +23,29 @@ const server = http.createServer((req, res) => {
     });
   } else if (req.method === "POST" && req.url === "/rpc") {
     let body = "";
-    req.on("data", chunk => (body += chunk));
+    req.on("data", (chunk) => (body += chunk));
     req.on("end", () => {
-      const { method, params } = JSON.parse(body);
-      console.log("📥 RPC Call:", method, params);
-      if (METHODS[method]) {
-        const result = METHODS[method](...params);
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ result }));
-      } else {
+      try {
+        const { method, params, message } = JSON.parse(body);
+        console.log("📥 RPC Call:", method, params);
+        if (message) console.log("📝 Message from frontend:", message);
+
+        if (METHODS[method]) {
+          const result = METHODS[method](...params);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ result, messageEcho: message || null }));
+        } else {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({
+              error: "Method not found",
+              messageEcho: message || null,
+            })
+          );
+        }
+      } catch (e) {
         res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Method not found" }));
+        res.end(JSON.stringify({ error: "Invalid JSON format" }));
       }
     });
   } else {
